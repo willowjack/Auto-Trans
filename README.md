@@ -65,3 +65,38 @@ for frame in capture_stream(debounce_secs=1.0):
 ## 다음 단계
 - UI(오버레이 + 설정 패널) 구현 후 단축키(일시정지/재개)를 추가하세요.
 - 번역 로그에 화자/말투 메타데이터를 포함해 의역 품질을 높이고, 재시작 시 최근 히스토리를 자동 복원하세요.
+
+## GitHub에 저장하는 방법 (체크리스트)
+실제 구현을 진행한 뒤 결과물을 GitHub에 올리려면 아래 순서로 진행하세요.
+
+1. **현재 상태 확인**
+   ```bash
+   git status
+   ```
+   수정 파일이 맞는지, 불필요한 파일(환경설정, 캐시, 키 파일 등)이 포함되지 않았는지 확인하세요.
+
+2. **Git 초기화/원격 설정**
+   - 아직 Git이 초기화되지 않았다면: `git init`
+   - 새 원격 저장소를 만들고 HTTPS/SSH URL을 `origin`으로 추가하세요.
+   ```bash
+   git remote add origin <your-repo-url>
+   ```
+
+3. **커밋 작성**
+   ```bash
+   git add .
+   git commit -m "Add initial real-time translation app"  # 또는 변경 요약 메시지
+   ```
+   서비스 계정 키나 `.env` 파일은 반드시 `.gitignore`에 넣어 커밋하지 않도록 합니다.
+
+4. **브랜치 푸시**
+   ```bash
+   git push -u origin main  # 또는 사용 중인 브랜치 이름
+   ```
+   권한 오류가 나면 GitHub Personal Access Token(HTTPS) 또는 SSH 키 설정을 확인하세요.
+
+5. **배포/릴리스 준비**
+   - 동작 확인 후 태그를 추가하거나 Release를 생성해 배포 패키지를 관리합니다.
+   - CI가 있는 경우(예: GitHub Actions) 기본 테스트가 통과하는지 확인하세요.
+
+> 번역 로그나 화면 캡처처럼 민감한 데이터는 공개 저장소에 올리지 말고, 필요 시 전용 프라이빗 리포를 사용하세요.
