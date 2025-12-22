@@ -7,67 +7,100 @@
 
 ## 현재 구현 상태
 
-- **1단계 완료**: 프로젝트 관리 시스템 구축
-  - CLAUDE.md 생성 (AI 어시스턴트 규칙)
-  - 백업/복원 스크립트 구현
-  - PROJECT_STATUS.md 자동 업데이트 규칙 설정
+- **2단계 완료**: 전체 프로젝트 스켈레톤 구현
+  - MVC 패턴 기반 모듈 분리 완료
+  - 전략 패턴으로 OCR/번역 엔진 추상화
+  - SQLite DB 스키마 설계 (Games, History, Glossary)
+  - PyQt6 UI 스켈레톤 구현
+  - 크로스 플랫폼 (Win/Mac) 경로 처리
 
 ## 프로젝트 개요
 
-- **프로젝트명**: Auto-Trans (자동 번역 도구)
-- **목표**: OCR 기반 실시간 화면 번역 시스템
+- **프로젝트명**: Auto-Trans (실시간 게임 화면 번역기)
+- **기술 스택**: Python 3.10+, PyQt6, RapidOCR, SQLite
+- **지원 플랫폼**: Windows, macOS
 
 ## 파일 구조
 
 ```
 /home/user/Auto-Trans/
-├── .gitignore
-├── LICENSE
-├── README.md
-├── CLAUDE.md          # AI 어시스턴트 규칙
-├── PROJECT_STATUS.md  # 현재 파일
-├── scripts/
-│   ├── backup.sh      # 백업 스크립트
-│   └── restore.sh     # 복원 스크립트
-└── .backups/          # 백업 저장소 (git 제외)
+├── main.py                 # 진입점
+├── requirements.txt        # 의존성
+├── CLAUDE.md              # AI 어시스턴트 규칙
+├── PROJECT_STATUS.md      # 현재 파일
+│
+├── core/                   # 비즈니스 로직
+│   ├── __init__.py
+│   ├── interfaces/         # 전략 패턴 인터페이스
+│   │   ├── ocr_engine.py   # OCR 엔진 추상 클래스
+│   │   └── translator.py   # 번역 엔진 추상 클래스
+│   ├── ocr/
+│   │   └── rapid_ocr.py    # RapidOCR 구현체
+│   ├── translators/
+│   │   └── google_translator.py
+│   ├── ocr_worker.py       # OCR 워커 스레드
+│   └── translation_manager.py
+│
+├── ui/                     # PyQt6 UI
+│   ├── main_window.py      # 메인 컨트롤 윈도우
+│   ├── overlay.py          # 번역 오버레이
+│   └── settings_dialog.py  # 설정 다이얼로그
+│
+├── data/                   # 데이터 레이어
+│   ├── database.py         # SQLite 연결 및 스키마
+│   ├── models.py           # 데이터 모델
+│   └── repositories.py     # Repository 패턴 CRUD
+│
+├── utils/                  # 유틸리티
+│   ├── platform.py         # OS별 경로 처리
+│   └── config.py           # 설정 관리
+│
+└── scripts/
+    ├── backup.sh
+    └── restore.sh
 ```
 
-## 백업 사용법
+## DB 스키마
 
-```bash
-# 백업 생성
-./scripts/backup.sh "설명"
+```sql
+-- Games: 게임별 설정
+CREATE TABLE games (
+    id, name, process_name,
+    source_language, target_language,
+    capture_region_x/y/w/h,
+    ocr_interval, stabilization_time, is_active
+);
 
-# 백업 목록 확인
-./scripts/restore.sh
+-- History: 번역 기록
+CREATE TABLE history (
+    id, game_id, original_text, translated_text,
+    source_language, target_language, confidence
+);
 
-# 복원
-./scripts/restore.sh backup_YYYYMMDD_HHMMSS_설명.tar.gz
+-- Glossary: 용어집
+CREATE TABLE glossary (
+    id, game_id, original_term, translated_term,
+    category, notes, is_global
+);
 ```
 
-## 예정된 구조 (계획)
+## 주요 규칙
 
-```
-/core       - 핵심 로직 (OCR, 번역 등)
-/ui         - PyQt6 사용자 인터페이스
-/database   - SQLite 데이터베이스
-```
-
-## 주요 규칙 (예정)
-
-- OCR은 0.5초마다 실행, 번역은 텍스트가 1.5초간 동일할 때만 트리거
-- DB 스키마: History, Glossary 테이블
+- **OCR**: 0.5초마다 실행
+- **번역 트리거**: 텍스트가 1.5초간 동일할 때만 번역
+- **전략 패턴**: `OCREngine`, `Translator` 인터페이스 상속으로 엔진 교체 가능
 
 ## 다음 단계
 
-1. ~~프로젝트 관리 시스템 구축~~ (완료)
-2. 프로젝트 기본 구조 생성 (/core, /ui, /database)
-3. 의존성 정의 (requirements.txt)
-4. RapidOCR 연동
-5. PyQt6 UI 구현
-6. SQLite 데이터베이스 설정
+1. ~~프로젝트 스켈레톤 구현~~ (완료)
+2. **화면 캡처 영역 선택 UI** 구현
+3. 실제 OCR/번역 테스트
+4. 게임 프로필 관리 UI
+5. 용어집/히스토리 뷰어 UI
+6. 시스템 트레이 연동
+7. 배포 패키징 (PyInstaller)
 
 ---
 
-**마지막 업데이트**: 2024-12-22 04:24
+**마지막 업데이트**: 2024-12-22 04:35
 **현재 브랜치**: `claude/add-project-status-gUpyd`

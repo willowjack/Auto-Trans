@@ -1,0 +1,59 @@
+# Auto-Trans - 실시간 게임 화면 번역기
+# Python 3.10+ 필요
+
+# ============================================
+# Core Dependencies (필수)
+# ============================================
+
+# UI Framework
+PyQt6>=6.4.0
+
+# OCR Engine
+rapidocr_onnxruntime>=1.3.0
+onnxruntime>=1.14.0
+
+# Translation
+googletrans==4.0.0-rc1
+
+# Image Processing
+numpy>=1.24.0
+opencv-python>=4.7.0
+Pillow>=9.4.0
+
+# Screen Capture (플랫폼별 선택)
+mss>=9.0.0  # 크로스 플랫폼 스크린샷
+
+# ============================================
+# Optional Dependencies (선택)
+# ============================================
+
+# Alternative OCR Engines (필요 시 설치)
+# easyocr>=1.7.0
+# pytesseract>=0.3.10
+
+# Alternative Translation (필요 시 설치)
+# deepl>=1.15.0
+
+# ============================================
+# Development Dependencies (개발용)
+# ============================================
+
+# Testing
+# pytest>=7.3.0
+# pytest-qt>=4.2.0
+
+# Linting
+# ruff>=0.1.0
+# mypy>=1.5.0
+
+# ============================================
+# Platform-specific notes
+# ============================================
+
+# Windows:
+#   - pywin32 설치 권장 (화면 캡처 성능 향상)
+#   pip install pywin32
+
+# macOS:
+#   - pyobjc 설치 필요 (시스템 API 접근)
+#   pip install pyobjc-framework-Quartz
