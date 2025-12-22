@@ -7,14 +7,15 @@
 
 ## 현재 구현 상태
 
-- **0단계 (초기화)**: 프로젝트 초기 설정 완료
-  - Git 저장소 초기화됨
-  - 기본 .gitignore, LICENSE, README.md 존재
+- **1단계 완료**: 프로젝트 관리 시스템 구축
+  - CLAUDE.md 생성 (AI 어시스턴트 규칙)
+  - 백업/복원 스크립트 구현
+  - PROJECT_STATUS.md 자동 업데이트 규칙 설정
 
 ## 프로젝트 개요
 
 - **프로젝트명**: Auto-Trans (자동 번역 도구)
-- **목표**: OCR 기반 실시간 화면 번역 시스템 (추정)
+- **목표**: OCR 기반 실시간 화면 번역 시스템
 
 ## 파일 구조
 
@@ -23,7 +24,25 @@
 ├── .gitignore
 ├── LICENSE
 ├── README.md
-└── PROJECT_STATUS.md (현재 파일)
+├── CLAUDE.md          # AI 어시스턴트 규칙
+├── PROJECT_STATUS.md  # 현재 파일
+├── scripts/
+│   ├── backup.sh      # 백업 스크립트
+│   └── restore.sh     # 복원 스크립트
+└── .backups/          # 백업 저장소 (git 제외)
+```
+
+## 백업 사용법
+
+```bash
+# 백업 생성
+./scripts/backup.sh "설명"
+
+# 백업 목록 확인
+./scripts/restore.sh
+
+# 복원
+./scripts/restore.sh backup_YYYYMMDD_HHMMSS_설명.tar.gz
 ```
 
 ## 예정된 구조 (계획)
@@ -41,13 +60,14 @@
 
 ## 다음 단계
 
-1. 프로젝트 기본 구조 생성 (/core, /ui, /database)
-2. 의존성 정의 (requirements.txt)
-3. RapidOCR 연동
-4. PyQt6 UI 구현
-5. SQLite 데이터베이스 설정
+1. ~~프로젝트 관리 시스템 구축~~ (완료)
+2. 프로젝트 기본 구조 생성 (/core, /ui, /database)
+3. 의존성 정의 (requirements.txt)
+4. RapidOCR 연동
+5. PyQt6 UI 구현
+6. SQLite 데이터베이스 설정
 
 ---
 
-**마지막 업데이트**: 2024-12-22
+**마지막 업데이트**: 2024-12-22 04:24
 **현재 브랜치**: `claude/add-project-status-gUpyd`
