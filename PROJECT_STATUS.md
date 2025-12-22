@@ -7,6 +7,12 @@
 
 ## 현재 구현 상태
 
+- **4단계 완료**: 번역 엔진과 DB 로직 구현
+  - Gemini API 기반 번역 엔진 (gemini-1.5-flash)
+  - 문맥 주입: 최근 5개 대화 + 게임별 용어집
+  - TranslationService: OCR → 번역 → DB 저장 통합
+  - 자동 히스토리 저장 및 용어집 학습
+
 - **3단계 완료**: 화면 캡처 및 OCR 모듈 고도화
   - mss 기반 고성능 화면 캡처 모듈
   - RapidOCR 엔진 (한/영/일/중 지원)
@@ -50,6 +56,32 @@ worker.on_text_stabilized = lambda s: translate(s.text)
 worker.start()
 ```
 
+### 번역 서비스 (`core/translation_service.py`)
+```python
+from core import TranslationService
+from data import Database
+
+db = Database()
+db.connect()
+
+service = TranslationService(
+    db=db,
+    api_key="your-gemini-api-key",
+    target_language="ko"
+)
+
+# OCRWorker와 연결
+ocr_worker.on_text_stabilized = service.handle_stabilized_text
+
+# 번역 결과 수신
+service.on_translation_complete = lambda r: overlay.set_text(r.translated_text)
+
+# 용어집 학습 (사용자가 번역 수정 시)
+service.add_glossary_term("NPC", "비플레이어 캐릭터", category="게임용어")
+
+service.start()
+```
+
 ## 텍스트 안정화 로직
 
 ```
@@ -74,9 +106,9 @@ core/
 ├── ocr/
 │   └── rapid_ocr.py       # RapidOCREngine
 ├── translators/
-│   └── google_translator.py
+│   └── gemini_translator.py  # GeminiTranslator, TranslationContext
 ├── ocr_worker.py          # OCRWorker, TextStabilizer
-└── translation_manager.py
+└── translation_service.py # TranslationService (DB 통합)
 ```
 
 ## 성능 지표
@@ -88,17 +120,29 @@ core/
 | 안정화 시간 | 1.5초 | 설정 가능 |
 | OCR 간격 | 0.5초 | 설정 가능 |
 
+## 번역 파이프라인
+
+```
+[화면 캡처] → [OCR 인식] → [텍스트 안정화] → [문맥 로드] → [Gemini 번역] → [오버레이 표시]
+     ↓              ↓              ↓              ↓              ↓
+  ScreenCapture  RapidOCR   TextStabilizer   DB Context   GeminiTranslator
+                                                ↓              ↓
+                                          History 5개      → History 저장
+                                          + Glossary       → Glossary 학습
+```
+
 ## 다음 단계
 
 1. ~~프로젝트 스켈레톤 구현~~ (완료)
 2. ~~화면 캡처 및 OCR 모듈 고도화~~ (완료)
-3. **영역 선택 UI 연동**
-4. 실제 통합 테스트
-5. 게임 프로필 관리 UI
-6. 번역 캐시 및 용어집 연동
-7. 배포 패키징 (PyInstaller)
+3. ~~번역 엔진과 DB 로직 구현~~ (완료)
+4. **영역 선택 UI 연동**
+5. 실제 통합 테스트
+6. 게임 프로필 관리 UI
+7. 용어집 편집 UI
+8. 배포 패키징 (PyInstaller)
 
 ---
 
-**마지막 업데이트**: 2024-12-22 04:50
+**마지막 업데이트**: 2024-12-22
 **현재 브랜치**: `claude/add-project-status-gUpyd`
