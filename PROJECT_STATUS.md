@@ -7,6 +7,14 @@
 
 ## 현재 구현 상태
 
+- **5단계 완료**: PyQt6 사용자 인터페이스
+  - 오버레이 창: 투명 배경, Frameless, Always on Top
+  - 마우스 드래그 이동, 자동 크기 조정 (Word-wrap)
+  - 스타일 설정: 폰트, 색상, 투명도
+  - 히스토리 에디터: 실시간 번역 로그
+  - 번역 수정 → DB 업데이트 → 오버레이 즉시 반영
+  - 용어집 자동 학습
+
 - **4단계 완료**: 번역 엔진과 DB 로직 구현
   - Gemini API 기반 번역 엔진 (gemini-1.5-flash)
   - 문맥 주입: 최근 5개 대화 + 게임별 용어집
@@ -109,6 +117,13 @@ core/
 │   └── gemini_translator.py  # GeminiTranslator, TranslationContext
 ├── ocr_worker.py          # OCRWorker, TextStabilizer
 └── translation_service.py # TranslationService (DB 통합)
+
+ui/
+├── __init__.py
+├── main_window.py         # 메인 컨트롤 윈도우
+├── overlay_window.py      # 오버레이 (투명, 드래그, 스타일)
+├── history_editor.py      # 히스토리 편집기 (실시간 로그)
+└── settings_dialog.py     # 설정 다이얼로그
 ```
 
 ## 성능 지표
@@ -136,10 +151,10 @@ core/
 1. ~~프로젝트 스켈레톤 구현~~ (완료)
 2. ~~화면 캡처 및 OCR 모듈 고도화~~ (완료)
 3. ~~번역 엔진과 DB 로직 구현~~ (완료)
-4. **영역 선택 UI 연동**
-5. 실제 통합 테스트
-6. 게임 프로필 관리 UI
-7. 용어집 편집 UI
+4. ~~PyQt6 사용자 인터페이스~~ (완료)
+5. **영역 선택 UI 연동**
+6. 실제 통합 테스트
+7. 게임 프로필 관리 UI
 8. 배포 패키징 (PyInstaller)
 
 ---

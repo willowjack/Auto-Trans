@@ -24,6 +24,8 @@ class MainWindow(QMainWindow):
     start_requested = pyqtSignal()
     stop_requested = pyqtSignal()
     game_changed = pyqtSignal(int)  # game_id
+    history_requested = pyqtSignal()  # 히스토리 열기 요청
+    glossary_requested = pyqtSignal()  # 용어집 열기 요청
 
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
@@ -114,6 +116,16 @@ class MainWindow(QMainWindow):
         self._stop_btn.clicked.connect(self._on_stop_clicked)
         self._settings_btn.clicked.connect(self._show_settings)
         self._game_combo.currentIndexChanged.connect(self._on_game_changed)
+        self._history_btn.clicked.connect(self._on_history_clicked)
+        self._glossary_btn.clicked.connect(self._on_glossary_clicked)
+
+    def _on_history_clicked(self) -> None:
+        """히스토리 버튼 클릭"""
+        self.history_requested.emit()
+
+    def _on_glossary_clicked(self) -> None:
+        """용어집 버튼 클릭"""
+        self.glossary_requested.emit()
 
     def _on_start_clicked(self) -> None:
         """시작 버튼 클릭"""

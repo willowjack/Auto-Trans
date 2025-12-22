@@ -176,6 +176,25 @@ class HistoryRepository:
                 cur.execute("DELETE FROM history")
             return cur.rowcount
 
+    def update_translation(self, entry_id: int, new_translation: str) -> bool:
+        """번역 수정"""
+        with self._db.cursor() as cur:
+            cur.execute("""
+                UPDATE history SET
+                    translated_text = ?
+                WHERE id = ?
+            """, (new_translation, entry_id))
+            return cur.rowcount > 0
+
+    def get_by_id(self, entry_id: int) -> Optional[HistoryEntry]:
+        """ID로 히스토리 조회"""
+        with self._db.cursor() as cur:
+            cur.execute("SELECT * FROM history WHERE id = ?", (entry_id,))
+            row = cur.fetchone()
+            if row:
+                return self._row_to_entry(row)
+        return None
+
     def _row_to_entry(self, row) -> HistoryEntry:
         """Row를 HistoryEntry 객체로 변환"""
         return HistoryEntry(

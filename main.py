@@ -20,7 +20,7 @@ from core.ocr_worker import StabilizedText
 
 from data import Database, GameRepository, HistoryRepository, GlossaryRepository
 
-from ui import MainWindow, OverlayWindow
+from ui import MainWindow, OverlayWindow, HistoryEditorWindow
 
 from utils import Config, ensure_dirs
 
@@ -35,7 +35,8 @@ class Application:
     3. 텍스트 안정화 (1.5초)
     4. 문맥 인식 번역 (TranslationService + Gemini)
     5. 오버레이 표시 (OverlayWindow)
-    6. DB 저장 (History, Glossary)
+    6. 히스토리 편집 (HistoryEditorWindow)
+    7. DB 저장 (History, Glossary)
     """
 
     def __init__(self):
@@ -84,11 +85,13 @@ class Application:
         self.qt_app = QApplication(sys.argv)
         self.main_window = MainWindow()
         self.overlay = OverlayWindow()
+        self.history_editor = HistoryEditorWindow()
 
         # 현재 게임 ID
         self._current_game_id: Optional[int] = None
 
         self._setup_connections()
+        self._setup_ui_connections()
         self._load_games()
 
     def _setup_connections(self) -> None:
@@ -106,6 +109,36 @@ class Application:
         self.translation_service.on_translation_complete = self._on_translation_complete
         self.translation_service.on_translation_start = self._on_translation_start
         self.translation_service.on_error = self._on_translation_error
+
+    def _setup_ui_connections(self) -> None:
+        """UI 컴포넌트 간 시그널 연결"""
+        # 메인 윈도우 → 히스토리/용어집 열기
+        self.main_window.history_requested.connect(self._show_history_editor)
+
+        # 히스토리 에디터 → 오버레이 (즉시 반영)
+        self.history_editor.overlay_update_requested.connect(
+            self._on_overlay_update_from_editor
+        )
+
+        # 히스토리 에디터 → 용어집 추가
+        self.history_editor.glossary_added.connect(
+            self._on_glossary_added
+        )
+
+        # 히스토리 에디터 → DB 업데이트
+        self.history_editor.translation_edited.connect(
+            self._on_translation_edited
+        )
+
+        # 오버레이 → 편집 요청
+        self.overlay.edit_requested.connect(
+            self._on_edit_requested
+        )
+
+    def _show_history_editor(self) -> None:
+        """히스토리 에디터 표시"""
+        self.history_editor.show()
+        self.history_editor.activateWindow()
 
     def _load_games(self) -> None:
         """게임 목록 로드"""
@@ -152,7 +185,40 @@ class Application:
         else:
             self.overlay.set_text(result.translated_text)
 
+        # 히스토리 에디터에 추가
+        self.history_editor.add_entry(result)
+
         self.main_window.update_status("번역 완료")
+
+    def _on_overlay_update_from_editor(self, original: str, translated: str) -> None:
+        """히스토리 에디터에서 오버레이 업데이트 요청"""
+        if self.config.overlay.show_original:
+            self.overlay.set_original_and_translated(original, translated)
+        else:
+            self.overlay.set_text(translated)
+
+    def _on_glossary_added(self, original: str, translated: str, category: str) -> None:
+        """용어집 추가"""
+        self.translation_service.add_glossary_term(
+            original=original,
+            translation=translated,
+            category=category,
+            is_global=False
+        )
+        self.main_window.update_status(f"용어집 추가: {original} → {translated}")
+
+    def _on_translation_edited(self, entry_id: int, original: str, new_translated: str) -> None:
+        """번역 수정 → DB 업데이트"""
+        try:
+            self.history_repo.update_translation(entry_id, new_translated)
+            print(f"[Application] 번역 수정 저장: ID={entry_id}")
+        except Exception as e:
+            print(f"[Application] 번역 수정 저장 실패: {e}")
+
+    def _on_edit_requested(self, original: str, translated: str) -> None:
+        """오버레이에서 편집 요청 → 히스토리 에디터 열기"""
+        self.history_editor.show()
+        self.history_editor.activateWindow()
 
     def _on_ocr_error(self, error: Exception) -> None:
         """OCR 오류"""
