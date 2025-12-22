@@ -5,7 +5,12 @@ OCREngine: OCR 엔진 인터페이스
 Translator: 번역 엔진 인터페이스
 """
 
-from core.interfaces.ocr_engine import OCREngine, OCRResult
+from core.interfaces.ocr_engine import (
+    OCREngine, OCRResult, TextBox, Language
+)
 from core.interfaces.translator import Translator, TranslationResult
 
-__all__ = ["OCREngine", "OCRResult", "Translator", "TranslationResult"]
+__all__ = [
+    "OCREngine", "OCRResult", "TextBox", "Language",
+    "Translator", "TranslationResult"
+]
