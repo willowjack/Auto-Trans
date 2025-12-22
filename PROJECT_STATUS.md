@@ -7,6 +7,14 @@
 
 ## 현재 구현 상태
 
+- **6단계 완료**: 최종 통합 및 시스템 완성
+  - 시스템 트레이: 최소화 시 트레이로 이동, 트레이 메뉴
+  - 예외 처리: 네트워크 오류, API 키 누락 시 알림 표시
+  - 영역 선택: 마우스 드래그로 ROI 선택 (RegionSelector)
+  - 설정 UI: API Keys, 안정화 시간, JSON 저장 완료
+  - 전역 예외 핸들러 (sys.excepthook)
+  - NotificationManager 통합
+
 - **5단계 완료**: PyQt6 사용자 인터페이스
   - 오버레이 창: 투명 배경, Frameless, Always on Top
   - 마우스 드래그 이동, 자동 크기 조정 (Word-wrap)
@@ -123,7 +131,8 @@ ui/
 ├── main_window.py         # 메인 컨트롤 윈도우
 ├── overlay_window.py      # 오버레이 (투명, 드래그, 스타일)
 ├── history_editor.py      # 히스토리 편집기 (실시간 로그)
-└── settings_dialog.py     # 설정 다이얼로그
+├── settings_dialog.py     # 설정 다이얼로그 (API Keys, 탭 구조)
+└── region_selector.py     # 영역 선택기 (마우스 드래그 ROI)
 ```
 
 ## 성능 지표
@@ -152,12 +161,13 @@ ui/
 2. ~~화면 캡처 및 OCR 모듈 고도화~~ (완료)
 3. ~~번역 엔진과 DB 로직 구현~~ (완료)
 4. ~~PyQt6 사용자 인터페이스~~ (완료)
-5. **영역 선택 UI 연동**
-6. 실제 통합 테스트
-7. 게임 프로필 관리 UI
-8. 배포 패키징 (PyInstaller)
+5. ~~영역 선택 UI 연동~~ (완료)
+6. ~~최종 통합~~ (완료)
+7. **실제 통합 테스트**
+8. 게임 프로필 관리 UI
+9. 배포 패키징 (PyInstaller)
 
 ---
 
-**마지막 업데이트**: 2024-12-22
+**마지막 업데이트**: 2025-12-22
 **현재 브랜치**: `claude/add-project-status-gUpyd`

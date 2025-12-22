@@ -19,9 +19,16 @@ class OCRConfig:
 
 
 @dataclass
+class APIConfig:
+    """API 키 설정"""
+    gemini_api_key: str = ""
+    deepl_api_key: str = ""
+
+
+@dataclass
 class TranslationConfig:
     """번역 설정"""
-    engine: str = "google"
+    engine: str = "gemini"  # gemini, deepl, google
     source_language: str = "auto"
     target_language: str = "ko"
     cache_size: int = 1000
@@ -39,12 +46,30 @@ class OverlayConfig:
 
 
 @dataclass
+class CaptureRegion:
+    """캡처 영역 설정"""
+    x: int = 0
+    y: int = 0
+    width: int = 0
+    height: int = 0
+
+    @property
+    def is_set(self) -> bool:
+        return self.width > 0 and self.height > 0
+
+    def as_tuple(self) -> tuple[int, int, int, int]:
+        return (self.x, self.y, self.width, self.height)
+
+
+@dataclass
 class AppConfig:
     """전체 앱 설정"""
+    api: APIConfig = field(default_factory=APIConfig)
     ocr: OCRConfig = field(default_factory=OCRConfig)
     translation: TranslationConfig = field(default_factory=TranslationConfig)
     overlay: OverlayConfig = field(default_factory=OverlayConfig)
-    minimize_to_tray: bool = False
+    capture_region: CaptureRegion = field(default_factory=CaptureRegion)
+    minimize_to_tray: bool = True
     auto_start: bool = False
     current_game_id: Optional[int] = None
 
@@ -69,6 +94,10 @@ class Config:
         return self._path
 
     @property
+    def api(self) -> APIConfig:
+        return self._config.api
+
+    @property
     def ocr(self) -> OCRConfig:
         return self._config.ocr
 
@@ -81,8 +110,20 @@ class Config:
         return self._config.overlay
 
     @property
+    def capture_region(self) -> CaptureRegion:
+        return self._config.capture_region
+
+    @property
     def app(self) -> AppConfig:
         return self._config
+
+    @property
+    def minimize_to_tray(self) -> bool:
+        return self._config.minimize_to_tray
+
+    @minimize_to_tray.setter
+    def minimize_to_tray(self, value: bool) -> None:
+        self._config.minimize_to_tray = value
 
     def load(self) -> None:
         """설정 파일 로드"""
@@ -107,9 +148,11 @@ class Config:
     def _to_dict(self) -> dict:
         """설정을 딕셔너리로 변환"""
         return {
+            "api": asdict(self._config.api),
             "ocr": asdict(self._config.ocr),
             "translation": asdict(self._config.translation),
             "overlay": asdict(self._config.overlay),
+            "capture_region": asdict(self._config.capture_region),
             "minimize_to_tray": self._config.minimize_to_tray,
             "auto_start": self._config.auto_start,
             "current_game_id": self._config.current_game_id
@@ -117,6 +160,11 @@ class Config:
 
     def _apply_dict(self, data: dict) -> None:
         """딕셔너리에서 설정 적용"""
+        if "api" in data:
+            for k, v in data["api"].items():
+                if hasattr(self._config.api, k):
+                    setattr(self._config.api, k, v)
+
         if "ocr" in data:
             for k, v in data["ocr"].items():
                 if hasattr(self._config.ocr, k):
@@ -131,6 +179,11 @@ class Config:
             for k, v in data["overlay"].items():
                 if hasattr(self._config.overlay, k):
                     setattr(self._config.overlay, k, v)
+
+        if "capture_region" in data:
+            for k, v in data["capture_region"].items():
+                if hasattr(self._config.capture_region, k):
+                    setattr(self._config.capture_region, k, v)
 
         if "minimize_to_tray" in data:
             self._config.minimize_to_tray = data["minimize_to_tray"]

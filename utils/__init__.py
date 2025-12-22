@@ -10,14 +10,17 @@ from utils.platform import (
     get_data_dir,
     get_config_dir,
     get_cache_dir,
+    get_log_dir,
+    ensure_dirs,
     is_windows,
     is_macos,
     is_linux
 )
-from utils.config import Config
+from utils.config import Config, APIConfig, CaptureRegion
 
 __all__ = [
     "get_platform", "get_data_dir", "get_config_dir", "get_cache_dir",
+    "get_log_dir", "ensure_dirs",
     "is_windows", "is_macos", "is_linux",
-    "Config"
+    "Config", "APIConfig", "CaptureRegion"
 ]
